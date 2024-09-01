@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Completion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .input-container {
+            margin-bottom: 10px;
+        }
+        .input-container input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        pre {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            white-space: pre-wrap; /* Allow text wrapping */
+            word-break: break-word; /* Prevent long words from breaking layout */
+        }
+    </style>
+</head>
+<body>
+    <h1>Complete the Sentence</h1>
+
+    <!-- Input fields for each line -->
+    <div class="input-container">
+        <label for="date">DATE:</label>
+        <input type="text" id="date" placeholder="DD/MM/YYYY" readonly>
+    </div>
+    <div class="input-container">
+        <label for="bayNo">BAY NO:</label>
+        <input type="text" id="bayNo" placeholder="V63">
+    </div>
+    <div class="input-container">
+        <label for="flt">FLT:</label>
+        <input type="text" id="flt" placeholder="INDIGO">
+    </div>
+    <div class="input-container">
+        <label for="reg">REG:</label>
+        <input type="text" id="reg" placeholder="VT-IQX">
+    </div>
+    <div class="input-container">
+        <label for="fltNo">FLT NO:</label>
+        <input type="text" id="fltNo" placeholder="6E-5127/1167">
+    </div>
+    <div class="input-container">
+        <label for="acType">A/C Type:</label>
+        <input type="text" id="acType" placeholder="A320">
+    </div>
+    <div class="input-container">
+        <label for="fegpIn">FEGP IN:</label>
+        <input type="text" id="fegpIn" placeholder="HH:MM" maxlength="5">
+    </div>
+    <div class="input-container">
+        <label for="fegpTotal">FEGP TOTAL MINUTES:</label>
+        <input type="text" id="fegpTotal" placeholder="32">
+    </div>
+    <div class="input-container">
+        <label for="pcaIn">PCA IN:</label>
+        <input type="text" id="pcaIn" placeholder="HH:MM" maxlength="5">
+    </div>
+    <div class="input-container">
+        <label for="pcaTotal">PCA TOTAL MINUTES:</label>
+        <input type="text" id="pcaTotal" placeholder="28">
+    </div>
+    <div class="input-container">
+        <label for="aeroIn">AERO BRIDGE IN:</label>
+        <input type="text" id="aeroIn" placeholder="HH:MM" maxlength="5">
+    </div>
+    <div class="input-container">
+        <label for="aeroOut">AERO BRIDGE OUT:</label>
+        <input type="text" id="aeroOut" placeholder="HH:MM" maxlength="5">
+    </div>
+    <div class="input-container">
+        <label for="bmeAgent">BME AGENT NAME:</label>
+        <input type="text" id="bmeAgent" placeholder="SELVIN PUGAZH">
+    </div>
+
+    <button onclick="generateOutput()">Generate Output</button><br>
+    <button onclick="sendMessage()">Send via WhatsApp</button><br>
+
+    <p>Output:</p>
+    <pre id="output"></pre>
+
+    <script>
+        // Automatically fill the date field with today's date
+        function setTodayDate() {
+            const today = new Date();
+            const day = today.getDate().toString().padStart(2, '0');
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const year = today.getFullYear();
+            document.getElementById("date").value = `${day}/${month}/${year}`;
+        }
+
+        // Call this function when the page loads
+        setTodayDate();
+
+        function addMinutesToTime(time, minutesToAdd) {
+            const [hours, minutes] = time.split(':').map(Number);
+            const date = new Date();
+            date.setHours(hours);
+            date.setMinutes(minutes + minutesToAdd);
+            const newHours = date.getHours().toString().padStart(2, '0');
+            const newMinutes = date.getMinutes().toString().padStart(2, '0');
+            return `${newHours}:${newMinutes}`;
+        }
+
+        function generateOutput() {
+            const fields = {
+                date: document.getElementById("date").value.trim(),
+                bayNo: document.getElementById("bayNo").value.trim(),
+                flt: document.getElementById("flt").value.trim(),
+                reg: document.getElementById("reg").value.trim(),
+                fltNo: document.getElementById("fltNo").value.trim(),
+                acType: document.getElementById("acType").value.trim(),
+                fegpIn: document.getElementById("fegpIn").value.trim(),
+                fegpTotal: parseInt(document.getElementById("fegpTotal").value.trim(), 10),
+                pcaIn: document.getElementById("pcaIn").value.trim(),
+                pcaTotal: parseInt(document.getElementById("pcaTotal").value.trim(), 10),
+                aeroIn: document.getElementById("aeroIn").value.trim(),
+                aeroOut: document.getElementById("aeroOut").value.trim(),
+                bmeAgent: document.getElementById("bmeAgent").value.trim()
+            };
+
+            // Basic validation
+            for (const key in fields) {
+                if (fields[key] === '' && key !== 'aeroOut') {
+                    alert(`Please fill in the ${key.replace(/([A-Z])/g, ' $1').toUpperCase()}.`);
+                    return;
+                }
+            }
+
+            // Calculate FEGP OUT and PCA OUT
+            fields.fegpOut = addMinutesToTime(fields.fegpIn, fields.fegpTotal);
+            fields.pcaOut = addMinutesToTime(fields.pcaIn, fields.pcaTotal);
+
+            // Generate and set output text
+            const output = `
+DATE         :- ${fields.date}
+BAY NO     :- ${fields.bayNo}
+FLT             :- ${fields.flt}
+REG            :- ${fields.reg}
+FLT NO       :- ${fields.fltNo}
+A/C TYPE   :- ${fields.acType}
+
+FEGP IN     :- ${fields.fegpIn}
+FEGP OUT :- ${fields.fegpOut}
+FEGP TOTAL MINUTES :- ${fields.fegpTotal}
+
+PCA IN      :- ${fields.pcaIn}
+PCA OUT  :- ${fields.pcaOut}
+PCA TOTAL MINUTES :- ${fields.pcaTotal}
+
+AERO BRIDGE IN           :- ${fields.aeroIn}
+AERO BRIDGE OUT       :- ${fields.aeroOut}
+
+BME AGENT NAME:- ${fields.bmeAgent}
+`.toUpperCase(); // Convert the output to uppercase
+
+            document.getElementById("output").innerText = output;
+
+            // Store the output for sharing
+            window.sharedOutput = output;
+        }
+
+        function sendMessage() {
+            if (!window.sharedOutput) {
+                alert("Please generate the output first.");
+                return;
+            }
+
+            // Encode the output for URL
+            const message = encodeURIComponent(window.sharedOutput);
+
+            // Construct the WhatsApp URL
+            const url = `https://api.whatsapp.com/send?text=${message}`;
+
+            // Open the WhatsApp URL in a new tab
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
