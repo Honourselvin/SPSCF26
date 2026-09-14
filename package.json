@@ -1,0 +1,32 @@
+{
+  "name": "selvin-medicals",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline-first pharmacy billing and inventory application for Selvin Medicals",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "build": "tsc && vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "electron": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "concurrently": "latest",
+    "electron-builder": "latest",
+    "typescript": "latest",
+    "vite": "latest",
+    "wait-on": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest"
+  },
+  "build": {
+    "appId": "in.selvinmedicals.pharmacy",
+    "productName": "Selvin Medicals",
+    "files": ["dist/**/*", "dist-electron/**/*"]
+  }
+}
